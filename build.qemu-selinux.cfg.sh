@@ -78,23 +78,23 @@ BUILD_IMAGES=(
 	"RESULT_DIR 	= ${RESULT_DIR}",
 
 	"qemu	=
-		BUILD_MANUAL    : true,
-		SCRIPT_PREV     : qemu_configure,
-		SCRIPT_POST     : qemu_build,
-		SCRIPT_LATE     : qemu_install,
-		SCRIPT_CLEAN    : qemu_clean",
+		BUILD_MANUAL : true,
+		BUILD_PREV   : qemu_configure,
+		BUILD_POST   : qemu_build,
+		BUILD_LAST   : qemu_install,
+		BUILD_CLEAN  : qemu_clean",
 
 	"kernel	=
-		MAKE_ARCH	: arm64,
-		MAKE_PATH  	: ${KERNEL_DIR},
-		MAKE_CONFIG	: ${KERNEL_DEFCONFIG},
-		MAKE_TARGET 	: ${KERNEL_BIN},
-		RESULT_FILE	: arch/arm64/boot/${KERNEL_BIN}",
+		MAKE_ARCH    : arm64,
+		MAKE_PATH    : ${KERNEL_DIR},
+		MAKE_CONFIG  : ${KERNEL_DEFCONFIG},
+		MAKE_TARGET  : ${KERNEL_BIN},
+		RESULT_FILE  : arch/arm64/boot/${KERNEL_BIN}",
 
 	"br2   	=
-		MAKE_PATH  	: ${BR2_DIR},
-		MAKE_CONFIG	: ${BR2_DEFCONFIG},
-		RESULT_FILE	: output/target; output/images/disk.img,
-		RESULT_NAME  	: rootfs; disk.img,
-		SCRIPT_LATE     : br2_initrd",
+		MAKE_PATH    : ${BR2_DIR},
+		MAKE_CONFIG  : ${BR2_DEFCONFIG},
+		RESULT_FILE  : output/target; output/images/disk.img,
+		RESULT_NAME  : rootfs; disk.img,
+		BUILD_LAST   : br2_initrd",
 )
