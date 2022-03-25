@@ -60,7 +60,7 @@ function qemu_clean () {
 
 function br2_initrd () {
 	echo "Build initrd: $(pwd)"
-	${TOOLS_SCRIPT_COMMON_DIR}/mk_rootimg.sh -r ${ROOT_DIR} -o ${ROOT_INITRD}
+	${TOOLS_SCRIPT_COMMON_DIR}/mk_ramimg.sh -r ${ROOT_DIR} -o ${ROOT_INITRD}
 }
 
 function copy_tools () {
