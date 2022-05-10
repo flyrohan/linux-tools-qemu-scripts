@@ -17,7 +17,9 @@ TOOLS_SCRIPT_COMMON_DIR="${TOOLS_DIR}/common"
 # buildroot configs
 BR2_PATH=buildroot
 BR2_DIR=${BASE_DIR}/${BR2_PATH}
-BR2_DEFCONFIG=qemu_aarch64_selinux_defconfig
+#BR2_DEFCONFIG=qemu_aarch64_devel_selinux_defconfig
+BR2_DEFCONFIG=qemu_aarch64_tiny_defconfig
+BR2_SDK=sdk-buildroot-aarch64
 
 KERNEL_DIR="${BASE_DIR}/linux"
 # default search path : arch/arm64/configs/
@@ -79,23 +81,31 @@ BUILD_IMAGES=(
 	"RESULT_DIR 	= ${RESULT_DIR}",
 
 	"qemu	=
-		BUILD_MANUAL    : true,
-		BUILD_PREV      : qemu_configure,
-		BUILD_POST      : qemu_build,
-		BUILD_LAST      : qemu_install,
-		BUILD_CLEAN     : qemu_clean",
+		BUILD_MANUAL   : true,
+		BUILD_PREV     : qemu_configure,
+		BUILD_POST     : qemu_build,
+		BUILD_LAST     : qemu_install,
+		BUILD_CLEAN    : qemu_clean",
 
 	"kernel	=
-		MAKE_PATH       : ${KERNEL_DIR},
-		MAKE_ARCH       : arm64,
-		MAKE_CONFIG     : ${KERNEL_DEFCONFIG},
-		MAKE_TARGET     : ${KERNEL_BIN},
-		BUILD_OUTPUT    : arch/arm64/boot/${KERNEL_BIN}",
+		MAKE_ARCH      : arm64,
+		MAKE_PATH      : ${KERNEL_DIR},
+		MAKE_CONFIG    : ${KERNEL_DEFCONFIG},
+		MAKE_TARGET    : ${KERNEL_BIN},
+		BUILD_OUTPUT   : arch/arm64/boot/${KERNEL_BIN}",
 
 	"br2   	=
-		MAKE_PATH       : ${BR2_DIR},
-		MAKE_CONFIG     : ${BR2_DEFCONFIG},
-		BUILD_OUTPUT    : output/target; output/images/disk.img,
-		BUILD_RESULT    : rootfs; disk.img,
-		BUILD_LAST      : br2_initrd",
+		MAKE_PATH      : ${BR2_DIR},
+		MAKE_CONFIG    : ${BR2_DEFCONFIG},
+		BUILD_OUTPUT   : output/target; output/images/disk.img,
+		BUILD_RESULT   : rootfs; disk.img,
+		BUILD_LAST     : br2_initrd",
+	"sdk   	=
+		BUILD_MANUAL   : true,
+		BUILD_DEPEND   : br2,
+                MAKE_NOCLEAN   : true,
+		MAKE_PATH      : ${BR2_DIR},
+		MAKE_TARGET    : sdk,
+		MAKE_OPTION    : BR2_SDK_PREFIX=${BR2_SDK},
+		BUILD_OUTPUT   : output/images/${BR2_SDK}.tar.gz",
 )
