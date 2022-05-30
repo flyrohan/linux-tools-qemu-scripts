@@ -43,7 +43,7 @@ declare -A QEMU_ROOT_INITRD=(
 declare -A QEMU_ROOT_RDINIT=(
 	["image"]="-initrd QEMU_ROOT_IMAGE"
 	["boot"]="--append \"root=/dev/ram rdinit=/init QEMU_BOOT_COMMAND\""
-	["disk0"]="-drive file=${QEMU_ROOT_IMAGE_FSIMAGE},format=raw,id=hd0"
+#	["disk0"]="-drive file=${QEMU_ROOT_IMAGE_FSIMAGE},format=raw,id=hd0"
 #	["opt"]="-serial pty"
 )
 
