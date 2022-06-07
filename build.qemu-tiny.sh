@@ -17,13 +17,12 @@ TOOLS_SCRIPT_COMMON_DIR="${TOOLS_DIR}/common"
 # buildroot configs
 BR2_PATH=buildroot
 BR2_DIR=${BASE_DIR}/${BR2_PATH}
-#BR2_DEFCONFIG=qemu_aarch64_devel_selinux_defconfig
 BR2_DEFCONFIG=qemu_aarch64_tiny_defconfig
 BR2_SDK=sdk-buildroot-aarch64
 
 KERNEL_DIR="${BASE_DIR}/linux"
 # default search path : arch/arm64/configs/
-KERNEL_DEFCONFIG="../../../../${BR2_PATH}/board/qemu/aarch64-devel/linux_selinux_defconfig"
+KERNEL_DEFCONFIG="../../../../${BR2_PATH}/board/rohan/configs/linux_selinux_defconfig"
 KERNEL_BIN="Image"
 
 QEMU_DIR="${BASE_DIR}/qemu"

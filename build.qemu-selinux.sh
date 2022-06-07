@@ -21,7 +21,7 @@ BR2_DEFCONFIG=qemu_aarch64_selinux_defconfig
 
 KERNEL_DIR="${BASE_DIR}/linux"
 # default search path : arch/arm64/configs/
-KERNEL_DEFCONFIG="../../../../${BR2_PATH}/board/qemu/aarch64-devel/linux_selinux_defconfig"
+KERNEL_DEFCONFIG="../../../../${BR2_PATH}/board/rohan/configs/linux_selinux_defconfig"
 KERNEL_BIN="Image"
 
 QEMU_DIR="${BASE_DIR}/qemu"
