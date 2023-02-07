@@ -82,7 +82,7 @@ BUILD_IMAGES=(
 		BUILD_MANUAL    : true,
 		BUILD_PREV      : qemu_configure,
 		BUILD_POST      : qemu_build,
-		BUILD_LAST      : qemu_install,
+		BUILD_COMPLETE  : qemu_install,
 		BUILD_CLEAN     : qemu_clean",
 
 	"kernel	=
@@ -97,5 +97,5 @@ BUILD_IMAGES=(
 		MAKE_CONFIG     : ${BR2_DEFCONFIG},
 		BUILD_OUTPUT    : output/target; output/images/disk.img,
 		BUILD_RESULT    : rootfs; disk.img,
-		BUILD_LAST      : br2_initrd",
+		BUILD_COMPLETE  : br2_initrd",
 )
