@@ -45,6 +45,13 @@ LK_OPTIONS="
 	ARCH_arm64_COMPILEFLAGS='-mno-outline-atomics -fno-stack-protector'
 	LK_HEAP_IMPLEMENTATION=miniheap"
 
+LK_PROJECT_UZ="uz-evb-tiny"
+LK_OPTIONS_UZ="
+	BUILDROOT=${LK_BUILDROOT}
+	ARCH_arm64_TOOLCHAIN_PREFIX=${TOOLCHAIN_PREFIX}
+	ARCH_arm64_COMPILEFLAGS='-mno-outline-atomics -fno-stack-protector'
+	NOECHO= DEBUG=2 ARCH_OPTFLAGS=-O0"
+
 ROOT_DIR="${RESULT_DIR}/rootfs"
 ROOT_INITRD="${RESULT_DIR}/initrd.img"
 
@@ -87,10 +94,16 @@ function br2_initrd () {
 }
 
 function lk_clean () {
-	logmsg "LK Clean: $(pwd)"
-	pushd ${LK_BUILDROOT} 2>/dev/null
-	bash -c "make ${LK_PROJECT} clean"
-	popd
+	declare -n local var="${1}"
+	local project=${var['MAKE_TARGET']}
+
+	logmsg "LK Clean: ${project} "
+	eval "make -C ${LK_DIR} BUILDROOT=${LK_BUILDROOT} ${project} clean"
+}
+
+function lk_complete_uz () {
+	logmsg "LK Complete: $(pwd)"
+	cp ${RESULT_DIR}/lk.uz.bin /data/jhk/deepx/m1/devel/rt_fw/firmware/build_fpga/dxfw_fpga.bin
 }
 
 ###############################################################################
@@ -128,8 +141,17 @@ BUILD_IMAGES=(
 		MAKE_PATH      : ${LK_DIR},
 		MAKE_TARGET    : ${LK_PROJECT},
 		MAKE_OPTION    : ${LK_OPTIONS},
-		BUILD_OUTPUT   : ${LK_BUILDROOT}/build-${LK_PROJECT}/lk.bin; ${LK_BUILDROOT}/build-${LK_PROJECT}/lk.elf,
-		BUILD_CLEAN    : lk_clean",
+		MAKE_CLEANOPT  : ${LK_PROJECT},
+		BUILD_OUTPUT   : ${LK_BUILDROOT}/build-${LK_PROJECT}/lk.bin; ${LK_BUILDROOT}/build-${LK_PROJECT}/lk.elf",
+
+	"uz =
+		MAKE_PATH      : ${LK_DIR},
+		MAKE_TARGET    : ${LK_PROJECT_UZ},
+		MAKE_OPTION    : ${LK_OPTIONS_UZ},
+		MAKE_CLEANOPT  : ${LK_PROJECT_UZ},
+		BUILD_OUTPUT   : ${LK_BUILDROOT}/build-${LK_PROJECT_UZ}/lk.bin; ${LK_BUILDROOT}/build-${LK_PROJECT}/lk.elf,
+		BUILD_RESULT   : lk.uz.bin; lk.uz.elf,
+		BUILD_COMPLETE : lk_complete_uz",
 
 	"sdk   	=
 		BUILD_MANUAL   : true,
