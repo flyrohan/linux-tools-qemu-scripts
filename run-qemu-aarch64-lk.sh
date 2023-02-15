@@ -11,7 +11,7 @@ LK_PROJECT=qemu-virt-arm64-test
 QENU_SYSTEM=${QEMU_INSTALL}/usr/local/bin/qemu-system-aarch64
 QEMU_CPU=cortex-a53
 QEMU_MACHINE=virt,gic-version=2
-QEMU_SMP=1
+QEMU_SMP=4
 QEMU_TARGET=${RESULT_DIR}/lk.elf
 
 ${QENU_SYSTEM} -cpu ${QEMU_CPU} \
