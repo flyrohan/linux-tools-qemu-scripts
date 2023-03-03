@@ -3,11 +3,12 @@
 BASE_DIR=$(realpath $(dirname $(realpath "$BASH_SOURCE"))/../../)
 QEMU_VERSION="v6.1.0" # v5.1.0-rc3-aarch64, v6.10
 QEMU_INSTALL="${BASE_DIR}/result/tools/qemu-${QEMU_VERSION}"
+QEMU_TARGET="aarch64"
 QEMU_SRC="${BASE_DIR}/qemu"
-QEMU_OUT="${BASE_DIR}/result/qemu"
+QEMU_OUT="${BASE_DIR}/result/${QEMU_TARGET}"
 QEMU_BIN="${QEMU_INSTALL}/usr/local/bin"
 
-qemu_system="qemu-system-aarch64"
+qemu_system="qemu-system-${QEMU_TARGET}"
 
 QEMU_KERNEL="-kernel ${QEMU_OUT}/Image"
 # execute on host pc $> vinagre :5900
@@ -227,7 +228,7 @@ function dts2dtb () {
 	if [[ ! -f ${dts} ]]; then
 		err "Not found dts: ${dts}"
 		exit 1;
-	fi 
+	fi
 	msg "dts to dtb : ${dts} -> ${dtb}"
 	bash -c "dtc -I dts -O dtb -o ${dtb} ${dts}"
 }
@@ -272,7 +273,7 @@ while true; do
 	-k|--kernel )
 		if [[ -n ${2} ]] && ! [[ ${2} =~ ^"-" ]]; then
 			QEMU_COMMAND_ARCH["kernel"]="-kernel ${2}"
-			shift 
+			shift
 		else
 			usage
 			exit 1

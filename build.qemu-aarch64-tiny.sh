@@ -6,7 +6,9 @@
 BASE_DIR=$(realpath $(dirname $(realpath "$BASH_SOURCE"))/../..)
 RESULT_TOP="${BASE_DIR}/result"
 OUTPUT_TOP="${BASE_DIR}/output"
-RESULT_DIR="${RESULT_TOP}/qemu"
+TARGET_ARCH="aarch64"
+RESULT_DIR="${RESULT_TOP}/${TARGET_ARCH}"
+OUTPUT_DIR="${OUTPUT_TOP}/${TARGET_ARCH}"
 
 TOOLCHAIN_DIR="${BASE_DIR}/tools/toolchain/gcc-11.0.1_aarch64-linux-gnu/bin"
 TOOLCHAIN_PREFIX=aarch64-linux-gnu-
@@ -18,26 +20,26 @@ TOOLS_SCRIPT_COMMON_DIR="${TOOLS_DIR}/common"
 
 # buildroot configs
 BR2_PATH=buildroot
-BR2_DIR=${BASE_DIR}/${BR2_PATH}
-BR2_OUT=${OUTPUT_TOP}/${BR2_PATH}
-BR2_DEFCONFIG=qemu_aarch64_tiny_defconfig
-BR2_SDK=sdk-buildroot-aarch64
+BR2_DIR="${BASE_DIR}/${BR2_PATH}"
+BR2_OUT="${OUTPUT_DIR}/${BR2_PATH}"
+BR2_DEFCONFIG="qemu_aarch64_tiny_defconfig"
+BR2_SDK="sdk-buildroot-${TARGET_ARCH}"
 
 KERNEL_DIR="${BASE_DIR}/linux"
-KERNEL_OUT="${OUTPUT_TOP}/linux"
+KERNEL_OUT="${OUTPUT_DIR}/linux"
 # default search from <linux>/arch/arm64/configs/
 KERNEL_DEFCONFIG="../../../../${BR2_PATH}/board/rohan/configs/linux_selinux_defconfig"
 KERNEL_BIN="Image"
 
 QEMU_DIR="${BASE_DIR}/qemu"
-QEMU_OUT="${OUTPUT_TOP}/qemu"
+QEMU_OUT="${OUTPUT_DIR}/qemu"
 QEMU_VERSION=v6.1.0
 QEMU_ISNTALL_DIR="${RESULT_TOP}/tools/qemu-${QEMU_VERSION}"
 QEMU_CONFIG="--target-list=aarch64-softmmu,aarch64-linux-user --enable-debug"
 
 # littlekernel
 LK_DIR="${BASE_DIR}/lk"
-LK_BUILDROOT="${OUTPUT_TOP}/lk"
+LK_BUILDROOT="${OUTPUT_DIR}/lk"
 LK_PROJECT="qemu-virt-arm64-test"
 LK_OPTIONS="
 	BUILDROOT=${LK_BUILDROOT}
@@ -51,6 +53,8 @@ LK_OPTIONS_UZ="
 	ARCH_arm64_TOOLCHAIN_PREFIX=${TOOLCHAIN_PREFIX}
 	ARCH_arm64_COMPILEFLAGS='-mno-outline-atomics -fno-stack-protector'
 	NOECHO= DEBUG=2 ARCH_OPTFLAGS=-O0"
+#	NOECHO= DEBUG=2 ARCH_OPTFLAGS=-rdynamic"
+#	NOECHO= DEBUG=2 ARCH_OPTFLAGS=-O0"
 
 ROOT_DIR="${RESULT_DIR}/rootfs"
 ROOT_INITRD="${RESULT_DIR}/initrd.img"
@@ -103,7 +107,7 @@ function lk_clean () {
 
 function lk_complete_uz () {
 	logmsg "LK Complete: $(pwd)"
-	cp ${RESULT_DIR}/lk.uz.bin /data/jhk/deepx/m1/devel/rt_fw/firmware/build_fpga/dxfw_fpga.bin
+	cp ${RESULT_DIR}/lk.uz.bin /data/jhk/deepx/m1/devel/rt_fw.git/firmware/build_fpga/dxfw_fpga.bin
 }
 
 ###############################################################################
@@ -160,6 +164,6 @@ BUILD_IMAGES=(
 		MAKE_PATH      : ${BR2_DIR},
 		MAKE_TARGET    : sdk,
 		MAKE_OPTION    : BR2_SDK_PREFIX=${BR2_SDK},
-		MAKE_OUTDIR    : ${OUTPUT_TOP}/buildroot,
+		MAKE_OUTDIR    : ${BR2_OUT},
 		BUILD_OUTPUT   : images/${BR2_SDK}.tar.gz",
 )

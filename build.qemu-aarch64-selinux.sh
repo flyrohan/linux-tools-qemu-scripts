@@ -4,9 +4,9 @@
 #
 
 BASE_DIR=$(realpath $(dirname $(realpath "$BASH_SOURCE"))/../..)
-RESULT_TOP=${BASE_DIR}/result
+RESULT_TOP="${BASE_DIR}/result"
 
-RESULT_DIR=${RESULT_TOP}/qemu
+RESULT_DIR="${RESULT_TOP}/aarch64"
 TOOLCHAIN_DIR="${BASE_DIR}/tools/toolchain/gcc-11.0.1_aarch64-linux-gnu/bin/"
 TOOLCHAIN_LINUX="${TOOLCHAIN_DIR}aarch64-linux-gnu-"
 
