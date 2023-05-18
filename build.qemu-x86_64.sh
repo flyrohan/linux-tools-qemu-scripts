@@ -22,50 +22,75 @@ BR2_OUT=${OUTPUT_DIR}/${BR2_PATH}
 BR2_DEFCONFIG="qemu_x86_64_defconfig"
 
 KERNEL_DIR="${BASE_DIR}/linux"
-KERNEL_OUT="${OUTPUT_DIR}/linux-x86_64"
+KERNEL_OUT="${OUTPUT_DIR}/linux"
 KERNEL_DEFCONFIG="x86_64_defconfig"
 KERNEL_BIN="bzImage"
 
 QEMU_DIR="${BASE_DIR}/qemu"
 QEMU_OUT="${OUTPUT_DIR}/qemu"
-QEMU_VERSION=v6.1.0
-QEMU_ISNTALL_DIR="${RESULT_TOP}/tools/qemu-${QEMU_VERSION}"
-QEMU_CONFIG="--target-list=aarch64-softmmu,aarch64-linux-user --enable-debug"
+QEMU_CONFIG=(
+	"--target-list=x86_64-softmmu,x86_64-linux-user,i386-linux-user,i386-softmmu"
+	"--prefix=/usr"
+	"--enable-debug"
+)
 
 ROOT_DIR="${RESULT_DIR}/rootfs"
 ROOT_INITRD="${RESULT_DIR}/initrd.img"
 
-function qemu_configure () {
-	logmsg "QEMU configure"
-	mkdir -p ${QEMU_OUT}
-	pushd ${QEMU_OUT} 2>/dev/null
-        bash -c "${QEMU_DIR}/configure ${QEMU_CONFIG}"
-	popd
+function qemu_prepare () {
+	declare -n local var="${1}"
+	local path=${var['BUILD_PATH']}
+	local name=$(basename ${path})
+	local out="${OUTPUT_DIR}/${name}"
+
+	logmsg " - QEMU prepare : ${name}"
+	mkdir -p ${out}
+	pushd ${out} > /dev/null 2>&1
+	bash -c "${path}/configure ${QEMU_CONFIG[*]}"
+	popd > /dev/null 2>&1
 }
 
 function qemu_build () {
-	logmsg "QEMU build"
-	pushd ${QEMU_OUT} 2>/dev/null
-	bash -c "make -j$(grep -c processor /proc/cpuinfo)"
-	popd
+	declare -n local var="${1}"
+	local name=$(basename ${var['BUILD_PATH']})
+	local out="${OUTPUT_DIR}/${name}"
+	local ret
+
+	logmsg " - QEMU build : ${name}"
+	pushd ${out} > /dev/null 2>&1
+	bash -c "make -j$(grep -c processor /proc/cpuinfo) V=1"
+	ret=${?}
+	popd > /dev/null 2>&1
+
+	return ${ret}
 }
 
 function qemu_install () {
-	local destdir="${QEMU_ISNTALL_DIR}"
+	declare -n local var="${1}"
+	local path=${var['BUILD_PATH']}
+	local out="${OUTPUT_DIR}/$(basename ${path})"
+	local dir="${RESULT_TOP}/tools/qemu-$(cat ${path}/VERSION)"
+	local ret
 
-	logmsg "QEMU install: ${destdir}"
-	mkdir -p ${destdir}
+	logmsg " - QEMU install: ${dir}"
+	mkdir -p ${dir}
 
-	pushd ${QEMU_OUT} 2>/dev/null
-	bash -c "make install DESTDIR=${destdir}"
-	popd
+	pushd ${out} > /dev/null 2>&1
+	bash -c "make install DESTDIR=${dir}"
+	ret=${?}
+	popd > /dev/null 2>&1
+
+	return ${ret}
 }
 
 function qemu_clean () {
-	logmsg "QEMU clean: $(pwd)"
-	pushd ${QEMU_OUT} 2>/dev/null
+	declare -n local var="${1}"
+	local out="${OUTPUT_DIR}/$(basename ${var['BUILD_PATH']})"
+
+	logmsg " QEMU clean : ${out}"
+	pushd ${out} > /dev/null 2>&1
 	bash -c "make distclean"
-	popd
+	popd > /dev/null 2>&1
 }
 
 function br2_initrd () {
@@ -81,8 +106,8 @@ BUILD_IMAGES=(
 
 	"qemu	=
 		BUILD_MANUAL   : true,
-		MAKE_PATH      : ${QEMU_DIR},
-		BUILD_PREP     : qemu_configure,
+		BUILD_PATH     : ${QEMU_DIR},
+		BUILD_PREP     : qemu_prepare,
 		BUILD_POST     : qemu_build,
 		BUILD_COMPLETE : qemu_install,
 		BUILD_CLEAN    : qemu_clean",
