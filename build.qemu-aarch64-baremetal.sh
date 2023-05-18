@@ -4,9 +4,10 @@
 #
 
 BASE_DIR=$(realpath $(dirname $(realpath "$BASH_SOURCE"))/../..)
+
+TARGET_ARCH="aarch64"
 RESULT_TOP="${BASE_DIR}/result"
 OUTPUT_TOP="${BASE_DIR}/output"
-TARGET_ARCH="aarch64"
 RESULT_DIR="${RESULT_TOP}/${TARGET_ARCH}"
 OUTPUT_DIR="${OUTPUT_TOP}/${TARGET_ARCH}"
 
