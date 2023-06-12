@@ -10,32 +10,38 @@ TARGET_ARCH="x86_64"
 RESULT_DIR="${RESULT_TOP}/${TARGET_ARCH}"
 OUTPUT_DIR="${OUTPUT_TOP}/${TARGET_ARCH}"
 
-
+# tools
 TOOLS_DIR="${BASE_DIR}/tools"
 TOOLS_SCRIPT_DIR="${TOOLS_DIR}/scripts"
 TOOLS_SCRIPT_COMMON_DIR="${TOOLS_DIR}/common"
 
 # buildroot configs
-BR2_PATH=buildroot
-BR2_DIR=${BASE_DIR}/${BR2_PATH}
-BR2_OUT=${OUTPUT_DIR}/${BR2_PATH}
-BR2_DEFCONFIG="qemu_x86_64_defconfig"
+#BR2_VERSION="buildroot-2021.11"
+BR2_VERSION="buildroot-2023.02"
+BR2_DIR="${BASE_DIR}/buildroot/${BR2_VERSION}"
+BR2_OUT="${OUTPUT_DIR}/${BR2_VERSION}"
+BR2_DEFCONFIG="qemu_x86_64_devel_defconfig" # qemu_x86_64_devel_defconfig qemu_x86_64_defconfig
+BR2_ROOT_IMAGE="rootfs.cpio"
 
-KERNEL_DIR="${BASE_DIR}/linux"
-KERNEL_OUT="${OUTPUT_DIR}/linux"
-KERNEL_DEFCONFIG="x86_64_defconfig"
+# linux kernel
+KERNEL_VERSION="linux-5.15"
+#KERNEL_VERSION="linux.stable"
+KERNEL_DIR="${BASE_DIR}/linux/${KERNEL_VERSION}"
+KERNEL_OUT="${OUTPUT_DIR}/${KERNEL_VERSION}"
+# qemu_x86_64_defconfig qemu_x86_64_ubuntu_20.04_defconfig
+KERNEL_DEFCONFIG="qemu_x86_64_devel_defconfig"
 KERNEL_BIN="bzImage"
 
-QEMU_DIR="${BASE_DIR}/qemu"
-QEMU_OUT="${OUTPUT_DIR}/qemu"
+# QEMU
+#QEMU_VERSION="qemu-6.1"
+QEMU_VERSION="qemu-8.0.2"
+QEMU_DIR="${BASE_DIR}/qemu/${QEMU_VERSION}"
 QEMU_CONFIG=(
 	"--target-list=x86_64-softmmu,x86_64-linux-user,i386-linux-user,i386-softmmu"
 	"--prefix=/usr"
+	"--enable-gtk"
 	"--enable-debug"
 )
-
-ROOT_DIR="${RESULT_DIR}/rootfs"
-ROOT_INITRD="${RESULT_DIR}/initrd.img"
 
 function qemu_prepare () {
 	declare -n local var="${1}"
@@ -93,11 +99,6 @@ function qemu_clean () {
 	popd > /dev/null 2>&1
 }
 
-function br2_initrd () {
-	logmsg "Build initrd: $(pwd)"
-	${TOOLS_SCRIPT_COMMON_DIR}/mk_ramimg.sh -r ${ROOT_DIR} -o ${ROOT_INITRD}
-}
-
 ###############################################################################
 # Build Image and Targets
 ###############################################################################
@@ -120,11 +121,18 @@ BUILD_IMAGES=(
 		MAKE_OUTDIR    : ${KERNEL_OUT},
 		BUILD_OUTPUT   : arch/x86/boot/${KERNEL_BIN}",
 
+	"module	=
+		MAKE_ARCH      : x86_64,
+		MAKE_PATH      : ${KERNEL_DIR},
+		MAKE_DEFCONFIG : ${KERNEL_DEFCONFIG},
+		MAKE_TARGET    : modules,
+		MAKE_OUTDIR    : ${KERNEL_OUT},
+		BUILD_DEPEND   : kernel",
+
 	"br2   	=
 		MAKE_PATH      : ${BR2_DIR},
 		MAKE_DEFCONFIG : ${BR2_DEFCONFIG},
 		MAKE_OUTDIR    : ${BR2_OUT},
-		BUILD_OUTPUT   : target,
-		BUILD_RESULT   : rootfs,
-		BUILD_COMPLETE : br2_initrd",
+		BUILD_OUTPUT   : images/${BR2_ROOT_IMAGE},
+		BUILD_RESULT   : ${BR2_ROOT_IMAGE}",
 )
